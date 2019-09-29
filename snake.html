@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>贪吃蛇</title>
+<style>
+	 body{
+	     background-image:url(pic/b79dbc76101a2dab9c4e9b8fe0ed8d2d.jpg);
+		 background-size:100% 700px;
+		
+		 background-repeat: no-repeat;
+		<!-- overflow:hidden;-->
+	}
+ 
+	.food{
+	   background-color:#1fcee4;
+	   border-radius:10px;
+	}
+	.snake{
+	   background-color:#ea0552;
+	   border-radius:4px;
+	}
+	.sbody{
+	   background-color:#2a62c3;
+	   border-radius:5px;
+	}
+	
+	#div1{
+	   width:400px;
+	   background-color:#e0d0ef;//#e0d0ef
+	   border:1px solid #444046;
+	}
+	#div2{
+	   position:absolute;
+	   left:450px;
+	   top:10px;
+	   width:150px;
+	   height:150px;
+	   background-color:#919092;
+	}
+</style>
+<body onload="init()" >
+    <div id="div1" >
+		<table id ="Contion"  width="400px" height="400px" cellspacing="0">
+		</table>
+	</div>
+	<div id="div2">
+	   <p>游戏还未完善.....</p>
+	  时间:<span><b id=""></b></span><br/></br>
+	  得分:<span><b id="">10</b></span>
+	  
+	</div>
+ <script>
+ function init(){
+     initTable();
+	 initSnake();
+	 initFood();
+	 initEvent();
+	 Move(SN.speed);
+ }
+  var SN ={
+     rows:20,//最大行数
+	 cols:20,//最大列数
+	 opensnake:[[9,10],[9,9],[9,8]],//游戏初始化的蛇
+	 allblocks:[],//存储整个td表格的dom对象
+	 snakebody:[],//存储蛇身
+	 old_dir:null,//
+	 dir:null,
+	 isopen:true,//判断游戏是否开始,为true游戏未开始
+     speed:200,
+  };
+  
+   //初始化表格
+   function initTable(){
+      var tab = document.getElementById("Contion");
+	  for(var i =0 ;i<20;i++){
+	   var tr = document.createElement("tr");
+	     SN.allblocks[i]=[];
+	     tab.appendChild(tr);
+		    for(var j=0;j<20;j++){
+			  var td = document.createElement("td");
+			  tr.appendChild(td);
+			  SN.allblocks[i][j]=td;
+			 td.className="kong";
+		    }
+	  }
+    }
+   //初始化蛇;
+   function initSnake(){  
+          SN.snakebody=SN.opensnake;
+          TuColor(SN.opensnake);
+   };
+   //生成食物
+   function initFood(){
+     var kongtd=document.querySelectorAll(".kong");//querySelector
+	 var a = parseInt(Math.random()*kongtd.length);
+	  kongtd[a].className="food";
+   }; 
+   //让蛇改变方向
+   function initEvent(){
+	document.body.onkeyup=function(e){
+		if( e.keyCode >=37 && e.keyCode <=40){
+		    if(SN.isopen){
+			    SN.isopen=false;
+			    SN.dir = e.keyCode;
+			    commonMove();
+			}else if(SN.dir!=null){
+			   SN.dir=e.keyCode;
+			   var a = SN.dir-SN.old_dir;
+			   if((Math.abs(a)==2)){ 
+			      SN.dir=SN.old_dir;
+			   }
+			}
+		}	
+		SN.old_dir=SN.dir;
+	}   
+ }
+//自动运行
+  function Move(speed){
+     setInterval(function(){
+	    if(SN.dir!=null){
+		    commonMove();
+		}
+	 },speed);
+  } 
+  //自动运行2
+  /** var set1 = setInterval(fn,SN.speed);
+   function fn(){
+     clearInterval(set1);
+	 if((SN.snakebody.length)>4){
+	     SN.speed=1000;
+	     set1=setInterval(fn,SN.speed)
+	 }
+   }*/
+   //蛇的移动的主要逻辑
+   function commonMove(){
+      QinCuColor();
+     var x = SN.snakebody[0][0];
+	 var y = SN.snakebody[0][1];
+      switch(SN.dir){
+	    case 37://←
+		        y--;
+				if(y<0){y=19;}
+		        break;
+		case 38://↑
+		        x--;
+				if(x<0){x=19;}
+		        break;
+		case 39://→
+		         y++;
+				 if(y>19){y=0;}
+		        break;
+		case 40://↓
+		         x++;
+				 if(x>19){x=0;}
+		        break;	
+	  }
+	  //吃食判断
+	 var Foods = document.querySelector(".food");
+     if(Foods==null){//食物被吃了
+	     initFood();//重新生成食物
+	 }else{
+	     var old_tail= SN.snakebody.pop();//移除旧尾
+	 }
+     //吃到自己判断
+	  for(var i=0;i<SN.snakebody.length;i++){
+            if(x==SN.snakebody[i][0]&&y==SN.snakebody[i][1]){
+			    SN.dir=null;
+				alert("Game Over 得分: "+(SN.snakebody.length-2));
+			}   
+	  }	 
+	 SN.snakebody.unshift([x,y]);//添加新蛇头
+	 
+	 TuColor(SN.snakebody);
+   }
+   //给蛇上色
+   function TuColor(arr){
+     for(var i=0;i<arr.length;i++){
+	    if(i==0){
+		  SN.allblocks[(arr[0][0])][(arr[0][1])].className="snake";
+		}else{
+		    SN.allblocks[(arr[i][0])][(arr[i][1])].className="sbody";
+		}
+	 }
+	     }
+   //给蛇褪色
+   function QinCuColor(){
+     for(var i=0;i<SN.snakebody.length;i++){
+		SN.allblocks[(SN.snakebody[i][0])][(SN.snakebody[i][1])].className="kong";
+	 }
+   }
+   //计时器
+ function jiShi(){
+   setInterval(function(){
+      
+   },1000);
+ }
+</script>  
+</bodY>
+</html>
